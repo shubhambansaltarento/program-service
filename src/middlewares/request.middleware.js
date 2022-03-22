@@ -7,6 +7,7 @@ var utilsService = require('../service/utilsService') //
 var contentProvider = require('sb_content_provider_util') // done
 // var { ApiInterceptor } = require('sb_api_interceptor') // done
 var ApiInterceptor = require('sb_api_interceptor') // done
+const loggerService = require('../service/loggerService');
 var _ = require('underscore') // done
 var reqMsg = messageUtil.REQUEST
 var responseCode = messageUtil.RESPONSE_CODE
@@ -136,7 +137,8 @@ function validateToken (req, res, next) {
       var payload = jwt.decode(tokenData.token)
       delete req.headers['x-authenticated-userid']
       var url = req.path
-      if (!url.includes('/content/v3/review') &&
+      if (!url.includes('/content/v4/review') &&
+        !url.includes('/content/v3/review') &&
         !url.includes('/v1/content/review') &&
         !url.includes('/v1/course/review')) {
         delete req.headers['x-authenticated-user-token']

@@ -647,23 +647,29 @@ exports.DATASET = {
 }
 
 exports.FORM = {
+  EXCEPTION_CODE: 'FORM',
   READ: {
     MISSING_CODE: 'ERR_GET_FORM_DATA',
     MISSING_MESSAGE: 'Required fields to get form are missing',
     FAILED_CODE: 'ERR_GET_FORM_DATA_FAILED',
-    FAILED_MESSAGE: 'Unable to get the form data'
+    FAILED_MESSAGE: 'Unable to get the form data',
+    INFO: 'Get form config',
+    EXCEPTION_CODE: 'FRMRED'
   },
   CREATE: {
+    EXCEPTION_CODE: 'FRMCRT',
     MISSING_CODE: 'ERR_CREATE_FORM_DATA',
     MISSING_MESSAGE: 'Required fields for creating form data are missing',
     FAILED_CODE: 'ERR_CREATE_FORM_DATA_FAILED',
     FAILED_MESSAGE: 'Unable to create the form data'
   },
   UPDATE: {
+    EXCEPTION_CODE: 'FRMUPD',
     MISSING_CODE: 'ERR_UPDATE_FORM_DATA',
     MISSING_MESSAGE: 'Required fields while updating form data are missing',
     FAILED_CODE: 'ERR_UPDATE_FORM_DATA_FAILED',
-    FAILED_MESSAGE: 'Unable to update the form data'
+    FAILED_MESSAGE: 'Unable to update the form data',
+    NOTFOUND_MESSAGE: 'Entry not found for the given request',
   }
 }
 
@@ -735,10 +741,13 @@ exports.PROGRAM = {
   },
 QUML_BULKUPLOAD: {
     EXCEPTION_CODE: 'QUMLBLK',
-    MISSING_CODE: 'ERR_QUML_BULKUPLOAD',
-    MISSING_MESSAGE: 'Required fields like user_id or publisher_id or organization_id is missing',
+    VALIDATION_MESSAGE: 'Validation Errors',
+    MISSING_CODE: 'REQUIRED_FIELD_MISSING',
+    MISSING_MESSAGE: 'Errors are found in the file. Please correct and upload again',
     FAILED_CODE: 'ERR_QUML_BULKUPLOAD_FAILED',
     FAILED_MESSAGE: 'Unable to perform quml bulk upload',
+    HIERARCHY_FAILED_CODE: 'ERR_QUESTIONSET_HIERARCHY_FAILED',
+    HIERARCHY_FAILED_MESSAGE: 'Get questionset hierarchy failed',
     INFO: 'Quml bulk upload'
   },
   QUML_BULKSTATUS: {

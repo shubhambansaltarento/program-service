@@ -979,13 +979,13 @@ function getProgramCountsByOrg(req, response) {
 
  /* Get the org details by filters*/
  function getOrganisationDetails(req, orgList) {
-  const url = `${envVariables.baseURL}/api/org/v1/search`;
+  const url = `${envVariables.baseURL}/learner/org/v2/search`;
   const reqData = {
     "request": {
       "filters": {
         "id": orgList,
         "status": 1,
-        "isRootOrg": true
+        "isTenant": true
       },
       "fields": ["id", "slug", "orgName", "orgCode", "imgUrl"]
     }
@@ -1511,7 +1511,7 @@ async function downloadProgramDetails(req, res) {
   });
 
   if (filteredPrograms.length) {
-    if (data.request.filters.targetType  && data.request.filters.targetType === 'searchCriteria') { 
+    if (data.request.filters.targetType  && data.request.filters.targetType === 'searchCriteria') {
       await _.forEach(programArr, (programId) => {
         programServiceHelper.getProgramDetails(programId).then((program)=> {
           programObjs[programId] = program;
@@ -2652,12 +2652,14 @@ function publishContent(req, response){
 
 function getUserOrganisationRoles(profileData, rootorg_id) {
   let userRoles = ['PUBLIC'];
-  if (profileData.organisations) {
-    let thisOrg = _.find(profileData.organisations, {
-      organisationId: rootorg_id
-    });
-    userRoles = _.union(userRoles, thisOrg.roles);
-  }
+  userRoles = _.uniq(_.union(userRoles, _.map(profileData.roles, 'role')));
+  // if (profileData.organisations) {
+  //   let thisOrg = _.find(profileData.organisations, {
+  //     organisationId: rootorg_id
+  //   });
+  //   userRoles = _.union(userRoles, thisOrg.roles);
+  // }
+
   return userRoles;
 }
 
