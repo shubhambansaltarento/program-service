@@ -249,6 +249,12 @@ async function getStack(htmlString, questionCounter) {
   return stack;
 }
 
+const ansIndex = (arr) => {
+  for (let index = 0; index < arr.length; index++) {
+    const element = arr[index];
+    if (element.answer === true) return index+1
+  }
+}
 async function renderMCQ(
   question,
   questionCounter,
@@ -368,16 +374,13 @@ async function renderMCQ(
       }
     }
   }
+  let answer = await ansIndex(question.editorState.options)
   let data = {
     Class: grade,
     Subject: subject,
     QuestionSetName: examName,
     Questions: finalQuestion,
-    Option1: questionOptions.length !== 0 ? questionOptions[0][0] : "",
-    Option2: questionOptions.length !== 0 ? questionOptions[1][0] : "",
-    Option3: questionOptions.length !== 0 ? questionOptions[2][0] : "",
-    Option4: questionOptions.length !== 0 ? questionOptions[3][0] : "",
-    "CorrectAnswer(1/2/3/4)": question.answer,
+    "CorrectAnswer(1/2/3/4)": answer,
     Competencies: learningOutcome,
     Skills: blooms,
     QuestionImageUrl: queurl,
@@ -386,6 +389,9 @@ async function renderMCQ(
     RightColumn: "",
     LeftColumn: "",
   };
+  questionOptions.forEach(( quesOpt , i)=>{
+    data[`Option${i+1}`] =   quesOpt[0]
+  })
 
   return data;
 }
