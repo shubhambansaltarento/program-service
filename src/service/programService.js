@@ -202,6 +202,7 @@ function publishProgram(req, response) {
     if (_.get(program, 'program_id') && (_.get(program, 'target_type') === 'collections' || _.get(program, 'target_type') === null || _.isUndefined(_.get(program, 'target_type')))) {
       programServiceHelper.copyCollections(program, req, response, publishCallback);
     } else if (_.get(program, 'program_id')) {
+      loggerService.debugLog({req: req, response: response, program: program, logCode: errorCodes.CODE1})
       publishCallback(null, req, response, program);
     } else {
         loggerService.exitLog({responseCode: 'ERR_PUBLISH_PROGRAM', errCode: req.rspObj.errCode+errorCodes.CODE2}, logObject);
@@ -227,6 +228,7 @@ const publishCallback = function(errObj, req, response, program, copyCollectionR
     traceId : req.headers['x-request-id'] || '',
     message : (_.get(program, 'type') === 'public') ? programMessages.PUBLISH.INFO : contentMessages.UNLISTED_PUBLISH.INFO
   }
+  loggerService.debugLog({req: req, response: response, program: program, logCode: errorCodes.CODE2})
   if (!errObj && (_.isUndefined(copyCollectionRes) || copyCollectionRes !== null)) {
     const reqHeaders = req.headers;
     program.copiedCollections = [];
@@ -254,7 +256,7 @@ const publishCallback = function(errObj, req, response, program, copyCollectionR
       returning: true,
       individualHooks: true,
     };
-
+    loggerService.debugLog({updateValue: updateValue, updateQuery: updateQuery, logCode: errorCodes.CODE3})
     model.program.update(updateValue, updateQuery).then(resData => {
       if (_.isArray(resData) && !resData[0]) {
         loggerService.exitLog({responseCode: 'ERR_PUBLISH_PROGRAM', errCode: req.rspObj.errCode+errorCodes.CODE2}, logObject);
@@ -284,6 +286,7 @@ const publishCallback = function(errObj, req, response, program, copyCollectionR
         }
     });
     }).catch(error => {
+      loggerService.debugLog({error: error, logCode: errorCodes.CODE4})
       console.log(JSON.stringify(error));
       loggerService.exitLog({responseCode: 'ERR_PUBLISH_PROGRAM', errCode: req.rspObj.errCode+errorCodes.CODE3}, logObject);
       loggerError(req.rspObj, req.rspObj.errCode+errorCodes.CODE3);
@@ -392,10 +395,12 @@ function getOsOrgForRootOrgId(rootorg_id, userRegData, reqHeaders) {
 }
 
 function onAfterPublishProgram(programDetails, reqHeaders, afterPublishCallback) {
+  loggerService.debugLog({programDetails: programDetails, reqHeaders: reqHeaders, logCode: errorCodes.CODE5})
   const onPublishResult = {};
   onPublishResult['nomination']= {};
   onPublishResult['userMapping']= {};
   getUserRegistryDetails(programDetails.createdby).then((userRegData) => {
+    loggerService.debugLog({userRegData: userRegData, logCode: errorCodes.CODE5})
     getOsOrgForRootOrgId(programDetails.rootorg_id, userRegData, reqHeaders).then(async (osOrgforRootOrgRes) => {
       const iforgFoundInRegData = osOrgforRootOrgRes.orgFoundInRegData;
       const osOrgforRootOrg = osOrgforRootOrgRes.osOrgforRootOrg;
@@ -408,6 +413,7 @@ function onAfterPublishProgram(programDetails, reqHeaders, afterPublishCallback)
           onPublishResult.nomination['result'] = nominationRes;
           afterPublishCallback(onPublishResult);
         }).catch((error) => {
+          loggerService.debugLog({error: error, logCode: errorCodes.CODE5})
           onPublishResult.nomination['error'] = error;
           onPublishResult.nomination['result'] = {};
           afterPublishCallback(onPublishResult);
@@ -544,11 +550,13 @@ function onAfterPublishProgram(programDetails, reqHeaders, afterPublishCallback)
       }
     })
     .catch((error) => {
+      loggerService.debugLog({error: error, logCode: errorCodes.CODE5})
       console.error(JSON.stringify(error));
       onPublishResult['error'] = {"msg": "getOsOrgForRootOrgId failed " + error.message};
       afterPublishCallback(onPublishResult);
     })
   }).catch((error) => {
+    loggerService.debugLog({error: error, logCode: errorCodes.CODE5})
     console.error(JSON.stringify(error));
     onPublishResult['error'] = error;
     afterPublishCallback(onPublishResult);
