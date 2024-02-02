@@ -286,8 +286,7 @@ const publishCallback = function(errObj, req, response, program, copyCollectionR
         }
     });
     }).catch(error => {
-      loggerService.debugLog({error: error, logCode: errorCodes.CODE4})
-      console.log(JSON.stringify(error));
+      loggerService.debugLog({error: JSON.stringify(error), logCode: errorCodes.CODE4});
       loggerService.exitLog({responseCode: 'ERR_PUBLISH_PROGRAM', errCode: req.rspObj.errCode+errorCodes.CODE3}, logObject);
       loggerError(req.rspObj, req.rspObj.errCode+errorCodes.CODE3);
       req.rspObj.responseCode = 'ERR_PUBLISH_PROGRAM';
@@ -395,13 +394,14 @@ function getOsOrgForRootOrgId(rootorg_id, userRegData, reqHeaders) {
 }
 
 function onAfterPublishProgram(programDetails, reqHeaders, afterPublishCallback) {
-  loggerService.debugLog({programDetails: programDetails, reqHeaders: reqHeaders, logCode: errorCodes.CODE5})
+  loggerService.debugLog({programDetails: JSON.stringify(programDetails), reqHeaders: JSON.stringify(reqHeaders), logCode: errorCodes.CODE5})
   const onPublishResult = {};
   onPublishResult['nomination']= {};
   onPublishResult['userMapping']= {};
   getUserRegistryDetails(programDetails.createdby).then((userRegData) => {
-    loggerService.debugLog({userRegData: userRegData, logCode: errorCodes.CODE5})
+    loggerService.debugLog({userRegData: JSON.stringify(userRegData), logCode: errorCodes.CODE5})
     getOsOrgForRootOrgId(programDetails.rootorg_id, userRegData, reqHeaders).then(async (osOrgforRootOrgRes) => {
+      loggerService.debugLog({osOrgforRootOrgRes: JSON.stringify(osOrgforRootOrgRes), logCode: errorCodes.CODE5})
       const iforgFoundInRegData = osOrgforRootOrgRes.orgFoundInRegData;
       const osOrgforRootOrg = osOrgforRootOrgRes.osOrgforRootOrg;
       const userOsid = _.get(userRegData, 'User.osid');
@@ -413,7 +413,7 @@ function onAfterPublishProgram(programDetails, reqHeaders, afterPublishCallback)
           onPublishResult.nomination['result'] = nominationRes;
           afterPublishCallback(onPublishResult);
         }).catch((error) => {
-          loggerService.debugLog({error: error, logCode: errorCodes.CODE5})
+          loggerService.debugLog({error: JSON.stringify(error), logCode: errorCodes.CODE5})
           onPublishResult.nomination['error'] = error;
           onPublishResult.nomination['result'] = {};
           afterPublishCallback(onPublishResult);
@@ -550,13 +550,13 @@ function onAfterPublishProgram(programDetails, reqHeaders, afterPublishCallback)
       }
     })
     .catch((error) => {
-      loggerService.debugLog({error: error, logCode: errorCodes.CODE5})
+      loggerService.debugLog({error: JSON.stringify(error), logCode: errorCodes.CODE5})
       console.error(JSON.stringify(error));
       onPublishResult['error'] = {"msg": "getOsOrgForRootOrgId failed " + error.message};
       afterPublishCallback(onPublishResult);
     })
   }).catch((error) => {
-    loggerService.debugLog({error: error, logCode: errorCodes.CODE5})
+    loggerService.debugLog({error: JSON.stringify(error), logCode: errorCodes.CODE5})
     console.error(JSON.stringify(error));
     onPublishResult['error'] = error;
     afterPublishCallback(onPublishResult);
