@@ -22,8 +22,7 @@ async function getSunbirdUserProfiles(req, identifier, fields=[])  {
       url: learnerService + '/user/v3/search',
       method: 'post',
       headers: {
-        ...req.headers,
-        'Authorization': `Bearer ${envVariables.SUNBIRD_PORTAL_API_AUTH_TOKEN}`
+        ...req.headers
       },
       data: {
         "request": {
