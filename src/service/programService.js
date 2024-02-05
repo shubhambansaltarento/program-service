@@ -1005,7 +1005,7 @@ async function programList(req, response) {
     res_limit = (data.request.limit < queryRes_Max) ? data.request.limit : (queryRes_Max);
   }
 
-  const filtersOnConfig = ['medium', 'subject', 'gradeLevel'];
+  const filtersOnConfig = data.request.frameworkCategoryFields || [];
   const filters = {};
   filters[Op.and] = _.compact(_.map(data.request.filters, (value, key) => {
     const res = {};
@@ -1082,6 +1082,11 @@ async function programList(req, response) {
       return response.status(200).send(successResponse(rspObj));
     }
     else {
+      let fieldsInConfig = (data.request.frameworkCategoryFields || []).concat(['defaultContributeOrgReview', 'framework', 'frameworkObj'])
+      let configFieldsInclude = _.map(fieldsInConfig, (field) => {
+        return [Sequelize.json(`config.${field}`), `${field}`]
+      });
+
       if (data.request.filters && data.request.filters.role && data.request.filters.user_id) {
         const promises = [];
         const roles = data.request.filters.role;
@@ -1099,6 +1104,9 @@ async function programList(req, response) {
                 ...whereCond,
                 ...data.request.filters,
                 ...filters
+              },
+              attributes:{
+                include : configFieldsInclude,
               },
               offset: res_offset,
               limit: res_limit,
@@ -1120,12 +1128,7 @@ async function programList(req, response) {
           loggerService.exitLog({responseCode: rspObj.responseCode}, logObject);
           return response.status(200).send(successResponse(rspObj));
         } else {
-          let fieldsInConfig = (data.request.frameworkCategoryFields || []).concat(['defaultContributeOrgReview', 'framework', 'frameworkObj'])
-          /*let configFields = ['subject', 'gradeLevel', 'board', 'medium', 'defaultContributeOrgReview', 'framework', 'frameworkObj'];*/
-          let configFieldsInclude = _.map(fieldsInConfig, (field) => {
-            return [Sequelize.json(`config.${field}`), `${field}`]
-          });
-
+        
           const res = await model.program.findAll({
             where: {
               ...filters,
