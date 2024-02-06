@@ -199,10 +199,19 @@ function publishProgram(req, response) {
     if (_.get(program, 'program_id') && _.get(program, 'type') === 'private') {
       req.rspObj.errCode = programMessages.EXCEPTION_CODE+'_'+contentMessages.UNLISTED_PUBLISH.EXCEPTION_CODE
     }
-    if (_.get(program, 'program_id') && (_.get(program, 'target_type') === 'collections' || _.get(program, 'target_type') === null || _.isUndefined(_.get(program, 'target_type')))) {
-      programServiceHelper.copyCollections(program, req, response, publishCallback);
-    } else if (_.get(program, 'program_id')) {
-      loggerService.debugLog({req: req, response: response, program: program, logCode: errorCodes.CODE1})
+    // if (_.get(program, 'program_id') && (_.get(program, 'target_type') === 'collections' || _.get(program, 'target_type') === null || _.isUndefined(_.get(program, 'target_type')))) {
+    //   programServiceHelper.copyCollections(program, req, response, publishCallback);
+    // } else 
+    if (_.get(program, 'program_id')) {
+
+      let logObj = {
+        request: req,
+        response: response,
+        program: program,
+        logCode: errorCodes.CODE1
+      }
+      console.log("-----------")
+      console.log(logObj);
       publishCallback(null, req, response, program);
     } else {
         loggerService.exitLog({responseCode: 'ERR_PUBLISH_PROGRAM', errCode: req.rspObj.errCode+errorCodes.CODE2}, logObject);
@@ -228,7 +237,7 @@ const publishCallback = function(errObj, req, response, program, copyCollectionR
     traceId : req.headers['x-request-id'] || '',
     message : (_.get(program, 'type') === 'public') ? programMessages.PUBLISH.INFO : contentMessages.UNLISTED_PUBLISH.INFO
   }
-  loggerService.debugLog({req: req, response: response, program: program, logCode: errorCodes.CODE2})
+  console.log({req: req, response: response, program: program, logCode: errorCodes.CODE2})
   if (!errObj && (_.isUndefined(copyCollectionRes) || copyCollectionRes !== null)) {
     const reqHeaders = req.headers;
     program.copiedCollections = [];
@@ -256,7 +265,7 @@ const publishCallback = function(errObj, req, response, program, copyCollectionR
       returning: true,
       individualHooks: true,
     };
-    loggerService.debugLog({updateValue: updateValue, updateQuery: updateQuery, logCode: errorCodes.CODE3})
+    console.log({updateValue: updateValue, updateQuery: updateQuery, logCode: errorCodes.CODE3})
     model.program.update(updateValue, updateQuery).then(resData => {
       if (_.isArray(resData) && !resData[0]) {
         loggerService.exitLog({responseCode: 'ERR_PUBLISH_PROGRAM', errCode: req.rspObj.errCode+errorCodes.CODE2}, logObject);
@@ -286,7 +295,7 @@ const publishCallback = function(errObj, req, response, program, copyCollectionR
         }
     });
     }).catch(error => {
-      loggerService.debugLog({error: JSON.stringify(error), logCode: errorCodes.CODE4});
+      console.log({error: JSON.stringify(error), logCode: errorCodes.CODE4});
       loggerService.exitLog({responseCode: 'ERR_PUBLISH_PROGRAM', errCode: req.rspObj.errCode+errorCodes.CODE3}, logObject);
       loggerError(req.rspObj, req.rspObj.errCode+errorCodes.CODE3);
       req.rspObj.responseCode = 'ERR_PUBLISH_PROGRAM';
@@ -394,14 +403,14 @@ function getOsOrgForRootOrgId(rootorg_id, userRegData, reqHeaders) {
 }
 
 function onAfterPublishProgram(programDetails, reqHeaders, afterPublishCallback) {
-  loggerService.debugLog({programDetails: JSON.stringify(programDetails), reqHeaders: JSON.stringify(reqHeaders), logCode: errorCodes.CODE5})
+  console.log({programDetails: JSON.stringify(programDetails), reqHeaders: JSON.stringify(reqHeaders), logCode: errorCodes.CODE5})
   const onPublishResult = {};
   onPublishResult['nomination']= {};
   onPublishResult['userMapping']= {};
   getUserRegistryDetails(programDetails.createdby).then((userRegData) => {
-    loggerService.debugLog({userRegData: JSON.stringify(userRegData), logCode: errorCodes.CODE5})
+    console.log({userRegData: JSON.stringify(userRegData), logCode: errorCodes.CODE5})
     getOsOrgForRootOrgId(programDetails.rootorg_id, userRegData, reqHeaders).then(async (osOrgforRootOrgRes) => {
-      loggerService.debugLog({osOrgforRootOrgRes: JSON.stringify(osOrgforRootOrgRes), logCode: errorCodes.CODE5})
+      console.log({osOrgforRootOrgRes: JSON.stringify(osOrgforRootOrgRes), logCode: errorCodes.CODE5})
       const iforgFoundInRegData = osOrgforRootOrgRes.orgFoundInRegData;
       const osOrgforRootOrg = osOrgforRootOrgRes.osOrgforRootOrg;
       const userOsid = _.get(userRegData, 'User.osid');
@@ -413,7 +422,7 @@ function onAfterPublishProgram(programDetails, reqHeaders, afterPublishCallback)
           onPublishResult.nomination['result'] = nominationRes;
           afterPublishCallback(onPublishResult);
         }).catch((error) => {
-          loggerService.debugLog({error: JSON.stringify(error), logCode: errorCodes.CODE5})
+          console.log({error: JSON.stringify(error), logCode: errorCodes.CODE5})
           onPublishResult.nomination['error'] = error;
           onPublishResult.nomination['result'] = {};
           afterPublishCallback(onPublishResult);
@@ -550,13 +559,13 @@ function onAfterPublishProgram(programDetails, reqHeaders, afterPublishCallback)
       }
     })
     .catch((error) => {
-      loggerService.debugLog({error: JSON.stringify(error), logCode: errorCodes.CODE5})
+      console.log({error: JSON.stringify(error), logCode: errorCodes.CODE5})
       console.error(JSON.stringify(error));
       onPublishResult['error'] = {"msg": "getOsOrgForRootOrgId failed " + error.message};
       afterPublishCallback(onPublishResult);
     })
   }).catch((error) => {
-    loggerService.debugLog({error: JSON.stringify(error), logCode: errorCodes.CODE5})
+    console.log({error: JSON.stringify(error), logCode: errorCodes.CODE5})
     console.error(JSON.stringify(error));
     onPublishResult['error'] = error;
     afterPublishCallback(onPublishResult);
