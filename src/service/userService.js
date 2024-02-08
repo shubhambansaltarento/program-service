@@ -368,4 +368,4 @@ function onOrgUserDeletion(req, response, userDetails) {
   });
 }
 
-module.exports.deleteUserAPI = deleteUser;
+module.exports = { getSunbirdUserProfiles, deleteUser }
