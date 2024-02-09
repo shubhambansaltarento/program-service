@@ -65,9 +65,14 @@ function exitLog(data, logObject) {
 
 function debugLog(logObject){
   const log = {
-    "debugLog": logObject
+    "eid": "LOG",
+    "edata": {
+      "type": "system", 
+      "level": "TRACE",  
+       "message": JSON.stringify(logObject),
+    }
   }
-  logger.info({ msg: 'Debug info', log})
+  logger.debug({ msg: 'Debug info', log});
   return log;
 
 }

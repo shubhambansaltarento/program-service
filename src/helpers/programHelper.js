@@ -670,9 +670,10 @@ class ProgramServiceHelper {
   copyCollections(data, req, response, cb) {
     const channel = _.get(req, 'body.request.channel');
     const reqHeaders = req.headers;
+    let logMsg = (_.get(data, 'type') === 'public') ? programMessages.PUBLISH.INFO : contentMessages.UNLISTED_PUBLISH.INFO;
     const logObject = {
       traceId : reqHeaders['x-request-id'] || '',
-      message : (_.get(data, 'type') === 'public') ? programMessages.PUBLISH.INFO : contentMessages.UNLISTED_PUBLISH.INFO
+      message : "copyCollections() -  " + logMsg
     }
     loggerService.entryLog({programId: _.get(data, 'program_id') || ''}, logObject);
     const errObj = req.rspObj;
@@ -708,6 +709,7 @@ class ProgramServiceHelper {
 
           const existingTextbooks = hierarchyService.getExistingCollection(consolidatedResult);
           const nonExistingTextbooks = hierarchyService.getNonExistingCollection(consolidatedResult)
+          // loggerService.debugLog({"filterExistingTextbooks": "Success"});
 
           if (existingTextbooks && existingTextbooks.length > 0) {
             hierarchyService.getHierarchy(existingTextbooks, reqHeaders)
@@ -723,7 +725,8 @@ class ProgramServiceHelper {
                     if (cindex !== -1) {
                       children = collections[cindex].children;
                     }
-
+                    // loggerService.debugLog({"getHierarchy - ": "Success"});
+          
                     return hierarchyService.existingHierarchyUpdateRequest(c, additionalMetaData, children);
                   })
                   hierarchyService.bulkUpdateHierarchy(getCollectiveRequest, reqHeaders)
@@ -769,11 +772,13 @@ class ProgramServiceHelper {
                   const originHierarchyResultData = _.map(originHierarchyResult, r => {
                     return _.get(r, 'data')
                   })
-
+                  // loggerService.debugLog({"getHierarchy - ": "Success"});
+          
                   hierarchyService.createCollection(originHierarchyResultData, reqHeaders)
                     .subscribe(createResponse => {
                       const originHierarchy = _.map(originHierarchyResultData, 'result.content');
-
+                      
+                      // loggerService.debugLog({"createCollection - Success. ": originHierarchyResultData });
                       const createdCollections = _.map(createResponse, cr => {
                         const mapOriginalHierarchy = {
                           creationResult: cr.data,
