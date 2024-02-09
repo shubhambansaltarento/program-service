@@ -200,8 +200,8 @@ function publishProgram(req, response) {
       req.rspObj.errCode = programMessages.EXCEPTION_CODE+'_'+contentMessages.UNLISTED_PUBLISH.EXCEPTION_CODE
     }
     if (_.get(program, 'program_id') && (_.get(program, 'target_type') === 'collections' || _.get(program, 'target_type') === null || _.isUndefined(_.get(program, 'target_type')))) {
-      console.log('copyCollectionsProgram', program);
-      console.log('copyCollectionsProgramReq', req);
+      console.log('copyCollectionsProgram');
+      console.log('copyCollectionsProgramReq');
       programServiceHelper.copyCollections(program, req, response, publishCallback);
     } else if (_.get(program, 'program_id')) {
       publishCallback(null, req, response, program);
