@@ -1097,7 +1097,7 @@ class ProgramServiceHelper {
       });
     } catch(err) {
       console.log(JSON.stringify(err));
-        error({msg: 'Error - program list', err})
+      logger.error({msg: 'Error - program list', err})
       throw err;
     }
   }
