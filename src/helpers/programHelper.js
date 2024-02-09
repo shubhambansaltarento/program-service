@@ -709,7 +709,7 @@ class ProgramServiceHelper {
 
           const existingTextbooks = hierarchyService.getExistingCollection(consolidatedResult);
           const nonExistingTextbooks = hierarchyService.getNonExistingCollection(consolidatedResult)
-          loggerService.debugLog({"filterExistingTextbooks": "Success"});
+          // loggerService.debugLog({"filterExistingTextbooks": "Success"});
 
           if (existingTextbooks && existingTextbooks.length > 0) {
             hierarchyService.getHierarchy(existingTextbooks, reqHeaders)
@@ -725,7 +725,7 @@ class ProgramServiceHelper {
                     if (cindex !== -1) {
                       children = collections[cindex].children;
                     }
-                    loggerService.debugLog({"getHierarchy - ": "Success"});
+                    // loggerService.debugLog({"getHierarchy - ": "Success"});
           
                     return hierarchyService.existingHierarchyUpdateRequest(c, additionalMetaData, children);
                   })
@@ -772,13 +772,13 @@ class ProgramServiceHelper {
                   const originHierarchyResultData = _.map(originHierarchyResult, r => {
                     return _.get(r, 'data')
                   })
-                  loggerService.debugLog({"getHierarchy - ": "Success"});
+                  // loggerService.debugLog({"getHierarchy - ": "Success"});
           
                   hierarchyService.createCollection(originHierarchyResultData, reqHeaders)
                     .subscribe(createResponse => {
                       const originHierarchy = _.map(originHierarchyResultData, 'result.content');
                       
-                      loggerService.debugLog({"createCollection - Success. ": originHierarchyResultData });
+                      // loggerService.debugLog({"createCollection - Success. ": originHierarchyResultData });
                       const createdCollections = _.map(createResponse, cr => {
                         const mapOriginalHierarchy = {
                           creationResult: cr.data,

@@ -71,7 +71,7 @@ class HierarchyService {
   }
 
   createCollection(collections, reqHeaders) {
-    loggerService.debugLog("createCollection() - ");
+    // loggerService.debugLog("createCollection() - ");
     const url = `${envVariables.CONTENT_SERVICE_URL}content/v4/create`;
 
     const bulkRequest = _.map(collections, collection => {
@@ -120,7 +120,7 @@ class HierarchyService {
           identifier: collection.result.content.identifier
         }
       };
-      loggerService.debugLog({"CreateCollection data ": option});
+      // loggerService.debugLog({"CreateCollection data ": option});
       return axios(option);
     });
     return forkJoin(...bulkRequest);
@@ -186,7 +186,7 @@ class HierarchyService {
   }
 
   newHierarchyUpdateRequest(collection, additionalMetaData, children) {
-    loggerService.debugLog("newHierarchyUpdateRequest() - ");
+    // loggerService.debugLog("newHierarchyUpdateRequest() - ");
     let instance = this;
     this.hierarchy = {};
     this.nodeModified = {};
