@@ -180,7 +180,7 @@ function publishProgram(req, response) {
   var reqBody = req.body;
   const logObject = {
     traceId : req.headers['x-request-id'] || '',
-    message : programMessages.PUBLISH.INFO
+    message : "publishProgram() -  " + programMessages.PUBLISH.INFO
   }
   loggerService.entryLog(reqBody, logObject);
 
@@ -200,17 +200,10 @@ function publishProgram(req, response) {
       req.rspObj.errCode = programMessages.EXCEPTION_CODE+'_'+contentMessages.UNLISTED_PUBLISH.EXCEPTION_CODE
     }
     if (_.get(program, 'program_id') && (_.get(program, 'target_type') === 'collections' || _.get(program, 'target_type') === null || _.isUndefined(_.get(program, 'target_type')))) {
+      console.log('copyCollectionsProgram', program);
+      console.log('copyCollectionsProgramReq', req);
       programServiceHelper.copyCollections(program, req, response, publishCallback);
     } else if (_.get(program, 'program_id')) {
-
-      let logObj = {
-        request: req,
-        response: response,
-        program: program,
-        logCode: errorCodes.CODE1
-      }
-      console.log("-----------")
-      console.log(logObj);
       publishCallback(null, req, response, program);
     } else {
         loggerService.exitLog({responseCode: 'ERR_PUBLISH_PROGRAM', errCode: req.rspObj.errCode+errorCodes.CODE2}, logObject);
@@ -236,7 +229,6 @@ const publishCallback = function(errObj, req, response, program, copyCollectionR
     traceId : req.headers['x-request-id'] || '',
     message : (_.get(program, 'type') === 'public') ? programMessages.PUBLISH.INFO : contentMessages.UNLISTED_PUBLISH.INFO
   }
-  console.log({req: req, response: response, program: program, logCode: errorCodes.CODE2})
   if (!errObj && (_.isUndefined(copyCollectionRes) || copyCollectionRes !== null)) {
     const reqHeaders = req.headers;
     program.copiedCollections = [];
