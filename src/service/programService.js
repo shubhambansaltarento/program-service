@@ -1851,9 +1851,9 @@ async function contributorSearch(req, response) {
     if (!_.isEmpty(orgUsersDetails)) {
       const roles = _.get(data.request, 'filters.user_org.roles');
       orgUsersDetails = _.map(
-        _.filter(orgUsersDetails, obj => { if (obj.identifier) { return obj; } }),
+        _.filter(orgUsersDetails, obj => { if (obj.identifier && !isDeleted) { return obj; } }),
         (obj) => {
-          if (obj.identifier) {
+          if (obj.identifier && !obj.isDeleted) {
             const tempUserObj = _.find(userList, { 'userId': obj.identifier });
             obj.name = `${ obj.firstName } ${ obj.lastName || '' }`;
             obj.User = _.find(userList, { 'userId': obj.identifier });
