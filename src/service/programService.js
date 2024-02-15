@@ -1863,7 +1863,7 @@ async function contributorSearch(req, response) {
           }
       });
 
-      const defaultFields =["id","identifier","userId","rootOrgId","userName","status","roles","maskedEmail","maskedPhone","firstName","lastName","name","User","User_Org","stateValidated","selectedRole","channel"];
+      const defaultFields =["id","identifier","userId","rootOrgId","userName","status","roles","maskedEmail","maskedPhone","firstName","lastName","name","User","User_Org","stateValidated","selectedRole","channel", "isDeleted"];
       const fields = _.get(data.request, 'fields') || [];
       const keys = fields.length > 0 ? fields : defaultFields;
       orgUsersDetails = _.map(orgUsersDetails, e => _.pick(e, keys));
