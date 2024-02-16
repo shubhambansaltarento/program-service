@@ -20,7 +20,7 @@ let userProfile = {};
 async function getSunbirdUserProfiles(req, identifier, fields=[])  {
     const option = {
       // TODO: for local private end point will not work we had to change to "user/v3/search"
-      url: learnerService + '/private/user/v3/search',
+      url: learnerService + 'private/user/v1/search',
       method: 'post',
       headers: {
         ...req.headers
