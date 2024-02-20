@@ -315,7 +315,7 @@ function deleteOsUser (userDetails, callback) {
 }
 
 function onIndividualUserDeletion (req, response, userDetails) {
-  const eventData = generateDeleteUserEvent (req, response, userDetails, {});
+  const eventData = generateDeleteUserEvent (req, response, userDetails, []);
   try {
   KafkaService.sendRecordWithTopic(eventData, envVariables.COKREAT_USER_DELETE_KAFKA_TOPIC, function (err, res) {
     if (err) {
@@ -341,7 +341,7 @@ function onOrgUserDeletion(req, response, userDetails) {
               searchOSUserWithOsId(adminUserOrgDetails.userId, (adminErr, adminRes) => {
                 if (adminRes && adminRes.status == 200 && adminRes.data.result.User.length > 0) {
                   var adminDetails = adminRes.data.result.User[0];
-                  const eventData =  generateDeleteUserEvent (req, response, userDetails, {role: 'admin', users: [adminDetails.userId]});
+                  const eventData =  generateDeleteUserEvent (req, response, userDetails, [{role: 'admin', users: [adminDetails.userId]}]);
                   KafkaService.sendRecordWithTopic(eventData, envVariables.COKREAT_USER_DELETE_KAFKA_TOPIC, function (err, res) {
                     if (err) {
                       handleUserDeleteError(req, response, error);
