@@ -281,17 +281,15 @@ class ProgramServiceHelper {
           }), (content) => {
               const program = programObjs[content.programId];
               let result = {};
-              console.log('---FRAMEWORK CATEGORIES---', frameworkCategories);
               frameworkCategories.forEach((cat)=>{
-                console.log('---cat CATEGORIES---', cat);
-                result[cat] = content[cat] && content[cat].length ? content[cat] : ''
+                if(Array.isArray(content[cat])){
+                    result[cat] = content[cat] && content[cat].length ? content[cat].join(', ') : ''
+                }else{
+                    result[cat] = content[cat] && content[cat].length ? content[cat] : ''
+                }
               })
               result[`Content Name`] = content.name || '';
               result['Framework'] = content.framework || '';
-              result['Board'] = content.board || '';
-              result['Medium'] = content.medium && content.medium.length ? content.medium.join(', ') : '';
-              result['Class'] = content.gradeLevel && content.gradeLevel.length ? content.gradeLevel.join(', ') : '';
-              result['Subject'] = content.subject && content.subject.length ? content.subject.join(', ') : '';
               result['Creator'] = content.creator || '';
               result['Status'] = null;
               if (content.status === 'Live') {
@@ -315,7 +313,7 @@ class ProgramServiceHelper {
     }
   }
 
-  prepareTableData (resData) {
+  prepareTableData (resData, frameworkCategories) {
     try {
       const collectionList = resData[0].data.result && resData[0].data.result.content || [],
       sampleContentWithOrgId = resData[1].data.result && resData[1].data.result.aggregations || [],
@@ -338,15 +336,14 @@ class ProgramServiceHelper {
         tableData = _.map(openForContributionCollections, (collection) => {
         const result = {};
         // sequence of columns in tableData
-        console.log('---FRAMEWORK CATEGORIES---', frameworkCategories);
         frameworkCategories.forEach((cat)=>{
-          console.log('---cat CATEGORIES---', cat);
-          result[cat] = collection[cat] && collection[cat].length ? collection[cat] : ''
+          if(Array.isArray(collection[cat])){
+              result[cat] = collection[cat] && collection[cat].length ? collection[cat].join(', ') : ''
+          }else{
+              result[cat] = collection[cat] && collection[cat].length ? collection[cat] : ''
+          }
         })
         result[`${collection.primaryCategory} Name`] = collection.name || '';
-        result['Medium'] = collection.medium || '';
-        result['Class'] = collection.gradeLevel && collection.gradeLevel.length ? collection.gradeLevel.join(', ') : '';
-        result['Subject'] = collection.subject || '';
         result['Number of Chapters'] = collection.chapterCountForContribution || collection.chapterCount || 0;
         result['Nominations Received'] = 0;
         result['Samples Received'] = 0;
@@ -466,7 +463,7 @@ class ProgramServiceHelper {
     return axios(option);
   }
 
-  getCollectionHierarchy(req, program_id, openForContribution) {
+  getCollectionHierarchy(req, program_id, openForContribution, frameworkCategories) {
     return new Promise((resolve, reject) => {
       this.getCollectionWithProgramId(program_id, req).then((res_collection) => {
         const collectionArr = res_collection.data && res_collection.data.result && res_collection.data.result.content || [];
@@ -486,7 +483,7 @@ class ProgramServiceHelper {
             });
           }
 
-          const contentCount = this.approvedContentCount(hierarchyArr, program_id);
+          const contentCount = this.approvedContentCount(hierarchyArr, program_id, frameworkCategories);
           resolve(contentCount);
         } catch (err) {
           reject('programServiceException: error in counting the approved contents');
@@ -500,14 +497,14 @@ class ProgramServiceHelper {
     });
   }
 
-  approvedContentCount(collectionHierarchy, program_id) {
+  approvedContentCount(collectionHierarchy, program_id, frameworkCategories) {
     const collectionWithApprovedContent = _.map(collectionHierarchy, collection => {
       this.acceptedContents = _.uniq(collection.acceptedContents) || [];
       this.rejectedContents = _.uniq(collection.rejectedContents) || [];
       this.collectionData = {};
       this.collectionData['totalContentsReviewed'] = (_.union(this.acceptedContents, this.rejectedContents)).length;
       this.collectionData['contributionsReceived'] = 0;
-      this.collectionLevelCount(collection);
+      this.collectionLevelCount(collection, frameworkCategories);
 
       // Count of contribution
 
@@ -526,14 +523,18 @@ class ProgramServiceHelper {
     return {program_id: program_id, collection: collectionWithApprovedContent};
   }
 
-  collectionLevelCount(data) {
+  collectionLevelCount(data, frameworkCategories) {
     const self = this;
     if ((data.primaryCategory === 'Digital Textbook' || data.primaryCategory === 'Course' || data.primaryCategory === 'Content Playlist') && data.visibility === 'Default') {
+      frameworkCategories.forEach((cat)=>{
+        if(Array.isArray(content[cat])){
+            result[cat] = collection[cat] && collection[cat].length ? collection[cat].join(', ') : ''
+        }else{
+            result[cat] = collection[cat] && collection[cat].length ? collection[cat] : ''
+        }
+      })
       this.collectionData['name'] = data.name;
       this.collectionData['identifier'] = data.identifier;
-      this.collectionData['grade'] = _.isArray(data.gradeLevel) ? data.gradeLevel.join(", ") : data.gradeLevel || '';
-      this.collectionData['medium'] = _.isArray(data.medium) ? data.medium.join(", ") : data.medium || '';
-      this.collectionData['subject'] = _.isArray(data.subject) ? data.subject.join(", ") : data.subject || '';
       this.collectionData['count'] = this.acceptedContents.length;
       this.collectionData['chapter'] = [];
       this.recursive = true;
@@ -563,7 +564,7 @@ class ProgramServiceHelper {
     }
     if (data.children && this.recursive) {
       this.recursive = false;
-      _.forEach(data.children, child => self.collectionLevelCount(child));
+      _.forEach(data.children, child => self.collectionLevelCount(child, frameworkCategories));
     }
   }
 
@@ -590,7 +591,7 @@ class ProgramServiceHelper {
     }
   }
 
-  textbookLevelContentMetrics(collectedData) {
+  textbookLevelContentMetrics(collectedData, frameworkCategories) {
     return new Promise((resolve, reject) => {
       forkJoin(..._.map(collectedData, data => this.getProgramDetails(data.program_id))).subscribe(details => {
       try {
@@ -603,10 +604,14 @@ class ProgramServiceHelper {
         const overalData = _.map(collectedData, data => {
           if (data.collection && data.collection.length) {
           const tableObj = _.map(data.collection, (collection) => {
+            frameworkCategories.forEach((cat)=>{
+              if(Array.isArray(content[cat])){
+                  result[cat] = collection[cat] && collection[cat].length ? collection[cat].join(', ') : ''
+              }else{
+                  result[cat] = collection[cat] && collection[cat].length ? collection[cat] : ''
+              }
+            })
             const final = {};
-              final['Medium'] = collection.medium;
-              final['Grade'] = collection.grade;
-              final['Subject'] = collection.subject;
               final[`${collection.primaryCategory} Name`] = collection.name;
               final['Total Number of Chapters'] = collection.chapter ? collection.chapter.length : 0;
               final['Total Contents Contributed'] = collection.contributionsReceived ? collection.contributionsReceived : 0;
@@ -634,7 +639,7 @@ class ProgramServiceHelper {
     });
   }
 
-  chapterLevelContentMetrics(collectedData) {
+  chapterLevelContentMetrics(collectedData, frameworkCategories) {
     return new Promise((resolve, reject) => {
       forkJoin(..._.map(collectedData, data => this.getProgramDetails(data.program_id))).subscribe(details => {
         try {
@@ -648,10 +653,14 @@ class ProgramServiceHelper {
             if (data.collection && data.collection.length) {
               const tableObj = _.map(data.collection, (collection) => {
                 const unitDetails = _.map(collection.chapter, unit => {
+                  frameworkCategories.forEach((cat)=>{
+                    if(Array.isArray(content[cat])){
+                        result[cat] = collection[cat] && collection[cat].length ? collection[cat].join(', ') : ''
+                    }else{
+                        result[cat] = collection[cat] && collection[cat].length ? collection[cat] : ''
+                    }
+                  })
                   const final = {};
-                  final['Medium'] = collection.medium;
-                  final['Grade'] = collection.grade;
-                  final['Subject'] = collection.subject;
                   final[`${collection.primaryCategory} Name`] = collection.name;
                   final['Chapter Name'] = unit.name;
                   final['Total Contents Contributed'] = unit.contentsContributed || 0;

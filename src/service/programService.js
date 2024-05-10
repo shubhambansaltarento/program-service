@@ -2439,7 +2439,7 @@ async function generateApprovedContentReport(req, res) {
   if (filteredPrograms.length) {
     try {
     const openForContribution = data.request.filters.openForContribution || false;
-    const requests = _.map(filteredPrograms, program => programServiceHelper.getCollectionHierarchy(req, program, openForContribution));
+    const requests = _.map(filteredPrograms, program => programServiceHelper.getCollectionHierarchy(req, program, openForContribution), data.request.filters.frameworkCategories);
     const aggregatedResult = await Promise.all(requests);
       _.forEach(aggregatedResult, result => {
         cacheManager_programReport.set({ key: `approvedContentCount_${result.program_id}`, value: result },
@@ -2453,7 +2453,7 @@ async function generateApprovedContentReport(req, res) {
       });
 
     if (data.request.filters.report === 'textbookLevelReport') {
-      const textbookLevelReport = await programServiceHelper.textbookLevelContentMetrics([...aggregatedResult, ...cacheData]);
+      const textbookLevelReport = await programServiceHelper.textbookLevelContentMetrics([...aggregatedResult, ...cacheData], data.request.filters.frameworkCategories);
       rspObj.result = {
         tableData: textbookLevelReport
       }
@@ -2461,7 +2461,7 @@ async function generateApprovedContentReport(req, res) {
       loggerService.exitLog({responseCode: rspObj.responseCode}, logObject);
       return res.status(200).send(successResponse(rspObj));
     } else if (data.request.filters.report === 'chapterLevelReport') {
-      const chapterLevelReport = await programServiceHelper.chapterLevelContentMetrics([...aggregatedResult, ...cacheData]);
+      const chapterLevelReport = await programServiceHelper.chapterLevelContentMetrics([...aggregatedResult, ...cacheData], data.request.filters.frameworkCategories);
       rspObj.result = {
         tableData: chapterLevelReport
       }
@@ -2482,7 +2482,7 @@ async function generateApprovedContentReport(req, res) {
   } else {
     try {
       if (data.request.filters.report === 'textbookLevelReport') {
-        const textbookLevelReport = await programServiceHelper.textbookLevelContentMetrics([...cacheData]);
+        const textbookLevelReport = await programServiceHelper.textbookLevelContentMetrics([...cacheData], frameworkCategories);
         rspObj.result = {
           tableData: textbookLevelReport
         }
@@ -2490,7 +2490,7 @@ async function generateApprovedContentReport(req, res) {
         loggerService.exitLog({responseCode: rspObj.responseCode}, logObject);
         return res.status(200).send(successResponse(rspObj));
       } else if (data.request.filters.report === 'chapterLevelReport') {
-        const chapterLevelReport = await programServiceHelper.chapterLevelContentMetrics([...cacheData]);
+        const chapterLevelReport = await programServiceHelper.chapterLevelContentMetrics([...cacheData], frameworkCategories);
         rspObj.result = {
           tableData: chapterLevelReport
         }
