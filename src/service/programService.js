@@ -1321,7 +1321,7 @@ function getNominationsList(req, response) {
   }else if (data.request.limit === 0) {
     model.nomination.findAll({
       where: {
-        ...findQuery
+                ...findQuery
       },
       attributes: [...data.request.fields || []]
     }).then(async (result) => {
@@ -1456,7 +1456,7 @@ async function downloadProgramDetails(req, res) {
     }
     promiseRequests =  _.map(filteredPrograms, (program) => {
       if (!data.request.filters.targetType  || data.request.filters.targetType === 'collections') {
-        return [programServiceHelper.getCollectionWithProgramId(program, req), programServiceHelper.getSampleContentWithOrgId(program, req),programServiceHelper.getSampleContentWithCreatedBy(program, req), programServiceHelper.getContributionWithProgramId(program, req), programServiceHelper.getNominationWithProgramId(program), programServiceHelper.getOveralNominationData(program)];
+        return [programServiceHelper.getCollectionWithProgramId(program, req, data.request.filters.frameworkCategories), programServiceHelper.getSampleContentWithOrgId(program, req),programServiceHelper.getSampleContentWithCreatedBy(program, req), programServiceHelper.getContributionWithProgramId(program, req), programServiceHelper.getNominationWithProgramId(program), programServiceHelper.getOveralNominationData(program)];
       } else if(data.request.filters.targetType === 'searchCriteria') {
         return[programServiceHelper.getContentContributionsWithProgramId(program, req)];
       }
@@ -1466,7 +1466,7 @@ async function downloadProgramDetails(req, res) {
     try{
     const chunkNumber = (!data.request.filters.targetType  || data.request.filters.targetType === 'collections') ? 6 : 1;
     const combainedRes = _.chunk(responseData, chunkNumber);
-    const programDetailsArray = programServiceHelper.handleMultiProgramDetails(combainedRes, programObjs, data.request.filters.targetType);
+    const programDetailsArray = programServiceHelper.handleMultiProgramDetails(combainedRes, programObjs, data.request.filters.targetType, data.request.filters.frameworkCategories);
     const tableData  = _.reduce(programDetailsArray, (final, data, index) => {
     final.push({program_id: filteredPrograms[index], values: data});
     return final;

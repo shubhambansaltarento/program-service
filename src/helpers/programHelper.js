@@ -140,7 +140,7 @@ class ProgramServiceHelper {
     return axios(option);
   }
 
-  async getCollectionWithProgramId(program_id, req) {
+  async getCollectionWithProgramId(program_id, req, frameworkCategories) {
     const program = await this.getProgramDetails(program_id);
     const queryFilter = {
        filters: {
@@ -149,9 +149,10 @@ class ProgramServiceHelper {
          status: ['Draft'],
          primaryCategory: program.dataValues.target_collection_category
        },
-       fields: ['name', 'medium', 'gradeLevel', 'subject', 'primaryCategory', 'chapterCount', 'acceptedContents', 'rejectedContents', 'openForContribution', 'chapterCountForContribution', 'mvcContributions'],
+       fields: ['name', 'primaryCategory', 'chapterCount', 'acceptedContents', 'rejectedContents', 'openForContribution', 'chapterCountForContribution', 'mvcContributions'],
        limit: 1000
      };
+     queryFilter.fields = [...queryFilter.fields, ...frameworkCategories];
     return this.searchWithProgramId(queryFilter, req);
   }
 
@@ -250,13 +251,13 @@ class ProgramServiceHelper {
     return promise;
   }
 
-  handleMultiProgramDetails(resGroup, programObjs, targetType = 'collections') {
+  handleMultiProgramDetails(resGroup, programObjs, targetType = 'collections', frameworkCategories) {
       const multiProgramDetails = _.map(resGroup, (resData) => {
         try {
           if (targetType === 'collections') {
-            return this.prepareTableData(resData);
+            return this.prepareTableData(resData, frameworkCategories);
           } else if(targetType === 'searchCriteria') {
-            return this.prepareContentsTableData(resData, programObjs);
+            return this.prepareContentsTableData(resData, programObjs, frameworkCategories);
           }
         } catch(err) {
         throw err
@@ -264,7 +265,7 @@ class ProgramServiceHelper {
       });
       return multiProgramDetails;
   }
-  prepareContentsTableData(resData, programObjs) {
+  prepareContentsTableData(resData, programObjs, frameworkCategories) {
     try {
       let contents = [];
       let tableData = [];
@@ -280,6 +281,11 @@ class ProgramServiceHelper {
           }), (content) => {
               const program = programObjs[content.programId];
               let result = {};
+              console.log('---FRAMEWORK CATEGORIES---', frameworkCategories);
+              frameworkCategories.forEach((cat)=>{
+                console.log('---cat CATEGORIES---', cat);
+                result[cat] = content[cat] && content[cat].length ? content[cat] : ''
+              })
               result[`Content Name`] = content.name || '';
               result['Framework'] = content.framework || '';
               result['Board'] = content.board || '';
@@ -332,6 +338,11 @@ class ProgramServiceHelper {
         tableData = _.map(openForContributionCollections, (collection) => {
         const result = {};
         // sequence of columns in tableData
+        console.log('---FRAMEWORK CATEGORIES---', frameworkCategories);
+        frameworkCategories.forEach((cat)=>{
+          console.log('---cat CATEGORIES---', cat);
+          result[cat] = collection[cat] && collection[cat].length ? collection[cat] : ''
+        })
         result[`${collection.primaryCategory} Name`] = collection.name || '';
         result['Medium'] = collection.medium || '';
         result['Class'] = collection.gradeLevel && collection.gradeLevel.length ? collection.gradeLevel.join(', ') : '';
