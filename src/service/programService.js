@@ -1184,7 +1184,7 @@ function addNomination(req, response) {
   }
 
   model.nomination.create(insertObj).then(res => {
-    programServiceHelper.onAfterAddNomination(insertObj.program_id, insertObj.user_id);
+    programServiceHelper.onAfterAddNomination(insertObj.program_id, insertObj.user_id, data.request.frameworkCategories);
     loggerService.exitLog({responseCode: rspObj.responseCode, 'program_id': insertObj.program_id}, logObject);
     rspObj.responseCode = responseCode.SUCCESS;
     rspObj.result = {
