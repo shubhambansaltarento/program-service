@@ -957,7 +957,7 @@ class ProgramServiceHelper {
    * @param integer program_id  Program id
    * @param integer user_id     User id
    */
-  async onAfterAddNomination(program_id, user_id) {
+  async onAfterAddNomination(program_id, user_id, frameworkCategories) {
     const program = await this.getProgramDetails(program_id);
     const value = {};
     value['body'] = {
@@ -975,17 +975,20 @@ class ProgramServiceHelper {
     registryService.searchRecord(value, (err, res) => {
       if (!err && res) {
         const user = _.first(res.data.result.User);
+        let User ={}
+        User.osid = user.osid;
+        if(!!frameworkCategories){
+          frameworkCategories.forEach((cat) =>{
+            User[cat] = _.union(user[cat], program.config[cat])
+          })
+        }
+        
         const updateRequestBody = {};
         updateRequestBody['body'] = {
           "id": "open-saber.registry.update",
           "ver": "1.0",
           "request": {
-            "User": {
-              "osid": user.osid,
-              "medium": _.union(user.medium, program.config.medium),
-              "gradeLevel": _.union(user.gradeLevel, program.config.gradeLevel),
-              "subject": _.union(user.subject, program.config.subject)
-              }
+            "User": User
           }
         };
         registryService.updateRecord(updateRequestBody, (error, response) => {
