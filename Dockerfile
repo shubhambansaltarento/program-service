@@ -1,4 +1,4 @@
-FROM node:14.20.1-slim
+FROM node:14.8.0-slim
 MAINTAINER "Ekstep" "info@ekstep.in"
 USER root
 COPY src /opt/program-service/
