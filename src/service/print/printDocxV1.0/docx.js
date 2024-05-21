@@ -16,9 +16,12 @@ const buildDOCX_1_WithCallback = async (config, callback) => {
   let totalMarks = 0;
   getQuestionSet(config)
     .then(async (data) => {
+      console.log("data", data);
         if (data.error) {
+          console.log("data.error", data.error);
         callback(null, data.error, data.errorMsg);
       } else {
+        console.log("config", config);
         let subject, grade, examName, instructions, language, description;
         if(data.instructions) instructions = data.instructions;
         if (data.paperData) {
@@ -145,6 +148,7 @@ const buildDOCX_1_WithCallback = async (config, callback) => {
       }
     })
     .catch((e) => {
+      console.log("getQuestionSetError", e);
       error = true;
       errorMsg = "";
       callback(null, error, errorMsg);

@@ -19,6 +19,7 @@ const QS_HIERARCHY_READ_URL = `${envVariables.SUNBIRD_ASSESSMENT_SERVICE_BASE_UR
 
 
 const getQuestionForSet = async (id) => {
+  console.log("getQuestionForSet", id)
   let url= `${QUE_READ_URL}${id}?fields=${fields}`
    const request = {
     url: url,
@@ -28,6 +29,7 @@ const getQuestionForSet = async (id) => {
   return axios(request).then((r) => {
     return r.data.result.question;
   }).catch((e)=>{
+    console.log("errorGetQuestionForSet", e)
     return{
       error:true,
       errormsg:"wrong ID"
@@ -35,6 +37,7 @@ const getQuestionForSet = async (id) => {
   })
 };
 const getQuestionSet = async (config) => {
+  console.log("configInDataImporter", config);
   const id = config.id;
     const headers = {
     Authorization: "Bearer " + envVariables.SUNBIRD_PORTAL_API_AUTH_TOKEN
@@ -109,6 +112,7 @@ const getQuestionSet = async (config) => {
     });
   })
   .catch((e) => {
+    console.log("dataImporterError", e);
     error = true;
     errorMsg = "Uncaught Exception";
     return {
