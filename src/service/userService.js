@@ -321,10 +321,17 @@ async function transferAssetOfDeleteduser(req, response){
   try {
   KafkaService.sendRecordWithTopic(req.rspObj.request, envVariables.COKREAT_USER_DELETE_KAFKA_TOPIC, function (err, res) {
     if (err) {
-      throw(err);
-    } 
+      handelAssetOwnershiptransfer(req, err);
+    } else{
+      return response.status(200).send(successResponse(rspObj));
+    }
   });
  }catch(err) {
+  handelAssetOwnershiptransfer(req, err)
+ }
+}
+
+function handelAssetOwnershiptransfer(req, err){
   var rspObj = req.rspObj
   console.log('User transferAssetOfDeleteduser failed', JSON.stringify(err))
   if(err && err.response && err.response.data) {
@@ -337,11 +344,11 @@ async function transferAssetOfDeleteduser(req, response){
   rspObj.result  = err;
   loggererr(rspObj, errCode);
   loggerService.exitLog({responseCode: rspObj.responseCode}, logObject);
-  return response.status(errStatusCode).send(errResponse(rspObj, errCode));
-  
+  return response.status(400).send(errorResponse(rspObj,errCode))
 
- }
 }
+
+
 
 function onIndividualUserDeletion (req, response, userDetails) {
   const eventData = generateDeleteUserEvent (req, response, userDetails, []);
