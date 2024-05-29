@@ -342,10 +342,9 @@ function handelAssetOwnershiptransfer(req, err){
   rspObj.errMsg = userMessages.DELETE.FAILED_MESSAGE
   rspObj.responseCode = responseCode.SERVER_err
   rspObj.result  = err;
-  loggererr(rspObj, errCode);
+  loggerError(rspObj, errCode);
   loggerService.exitLog({responseCode: rspObj.responseCode}, logObject);
   return response.status(400).send(errorResponse(rspObj,errCode))
-
 }
 
 
