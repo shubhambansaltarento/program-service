@@ -321,12 +321,15 @@ async function transferAssetOfDeleteduser(req, response){
   try {
   KafkaService.sendRecordWithTopic(req.body.request, envVariables.COKREAT_USER_DELETE_KAFKA_TOPIC, function (err, res) {
     if (err) {
+      console.log("Here in if block");
       handelAssetOwnershiptransfer(req, err);
     } else{
-      return response.status(200).send(successResponse(rspObj));
+      console.log("Here in success");
+      return response.status(200).send(successResponse(res));
     }
   });
  }catch(err) {
+  console.log("Here in catch");
   handelAssetOwnershiptransfer(req, err)
  }
 }
